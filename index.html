@@ -1,159 +1,211 @@
-<!DOCTYPE html>
-<html lang="vi">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Giải Phương Trình Bậc 2 - Professional</title>
+import { useState } from 'react';
+
+interface KetQua {
+  coNghiem: boolean;
+  nghiemKep?: number;
+  nghiem1?: number;
+  nghiem2?: number;
+  voNghiem?: boolean;
+  voSoNghiem?: boolean;
+  delta?: number;
+  buocGiai: string[];
+}
+
+export default function GiaiPhuongTrinhBacHai() {
+  const [a, setA] = useState<string>('');
+  const [b, setB] = useState<string>('');
+  const [c, setC] = useState<string>('');
+  const [ketQua, setKetQua] = useState<KetQua | null>(null);
+  const [dangTinh, setDangTinh] = useState<boolean>(false);
+
+  const giaiPhuongTrinh = () => {
+    setDangTinh(true);
     
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
-    
-    <!-- Font Awesome Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
-    <!-- Chart.js for Graph -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+    // Giả lập thời gian tính toán
+    setTimeout(() => {
+      const heSoA = parseFloat(a);
+      const heSoB = parseFloat(b);
+      const heSoC = parseFloat(c);
+
+      if (isNaN(heSoA) || isNaN(heSoB) || isNaN(heSoC)) {
+        alert('Vui lòng nhập đầy đủ các hệ số hợp lệ!');
+        setDangTinh(false);
+        return;
+      }
+
+      const buocGiai: string[] = [];
+      buocGiai.push(`Phương trình: ${heSoA}x² + ${heSoB}x + ${heSoC} = 0`);
+
+      // Trường hợp a = 0
+      if (heSoA === 0) {
+        buocGiai.push('Vì a = 0, đây là phương trình bậc nhất: ' + heSoB + 'x + ' + heSoC + ' = 0');
         
-        body {
-            font-family: 'Roboto', sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            padding: 20px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
+        if (heSoB === 0) {
+          if (heSoC === 0) {
+            buocGiai.push('Phương trình có vô số nghiệm');
+            setKetQua({
+              coNghiem: true,
+              voSoNghiem: true,
+              buocGiai
+            });
+          } else {
+            buocGiai.push('Phương trình vô nghiệm');
+            setKetQua({
+              coNghiem: false,
+              voNghiem: true,
+              buocGiai
+            });
+          }
+        } else {
+          const nghiem = -heSoC / heSoB;
+          buocGiai.push(`Nghiệm: x = -c/b = -${heSoC}/${heSoB} = ${nghiem}`);
+          setKetQua({
+            coNghiem: true,
+            nghiemKep: nghiem,
+            buocGiai
+          });
         }
-        
-        .container {
-            max-width: 1200px;
-            width: 100%;
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-            overflow: hidden;
-            animation: slideIn 0.5s ease-out;
-        }
-        
-        @keyframes slideIn {
-            from {
-                opacity: 0;
-                transform: translateY(-30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-        
-        .header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 30px;
-            text-align: center;
-        }
-        
-        .header h1 {
-            font-size: 2.5em;
-            margin-bottom: 10px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
-        }
-        
-        .header .equation {
-            font-size: 1.3em;
-            opacity: 0.9;
-            font-weight: 300;
-        }
-        
-        .content {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 30px;
-            padding: 30px;
-        }
-        
-        @media (max-width: 768px) {
-            .content {
-                grid-template-columns: 1fr;
-            }
-        }
-        
-        .input-section, .result-section {
-            padding: 20px;
-        }
-        
-        .input-group {
-            margin-bottom: 20px;
-        }
-        
-        .input-group label {
-            display: block;
-            margin-bottom: 8px;
-            color: #333;
-            font-weight: 500;
-            font-size: 1.1em;
-        }
-        
-        .input-wrapper {
-            position: relative;
-            display: flex;
-            align-items: center;
-        }
-        
-        .input-wrapper i {
-            position: absolute;
-            left: 15px;
-            color: #667eea;
-            font-size: 1.2em;
-        }
-        
-        .input-wrapper input {
-            width: 100%;
-            padding: 15px 15px 15px 45px;
-            border: 2px solid #e0e0e0;
-            border-radius: 10px;
-            font-size: 1.1em;
-            transition: all 0.3s;
-            background: white;
-        }
-        
-        .input-wrapper input:focus {
-            outline: none;
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-        }
-        
-        .button-group {
-            display: flex;
-            gap: 10px;
-            margin-top: 25px;
-        }
-        
-        .btn {
-            flex: 1;
-            padding: 15px 25px;
-            border: none;
-            border-radius: 10px;
-            font-size: 1.1em;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.3s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-        }
-        
-        .btn-primary {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-        }
-        
-        .btn-primary:hover {
-            
+        setDangTinh(false);
+        return;
+      }
+
+      // Tính delta
+      const delta = heSoB * heSoB - 4 * heSoA * heSoC;
+      buocGiai.push(`Tính delta: Δ = b² - 4ac = ${heSoB}² - 4.${heSoA}.${heSoC} = ${delta}`);
+
+      if (delta < 0) {
+        buocGiai.push('Vì Δ < 0, phương trình vô nghiệm');
+        setKetQua({
+          coNghiem: false,
+          voNghiem: true,
+          delta,
+          buocGiai
+        });
+      } else if (delta === 0) {
+        const nghiem = -heSoB / (2 * heSoA);
+        buocGiai.push(`Vì Δ = 0, phương trình có nghiệm kép: x = -b/2a = -${heSoB}/(2.${heSoA}) = ${nghiem}`);
+        setKetQua({
+          coNghiem: true,
+          nghiemKep: nghiem,
+          delta,
+          buocGiai
+        });
+      } else {
+        const nghiem1 = (-heSoB + Math.sqrt(delta)) / (2 * heSoA);
+        const nghiem2 = (-heSoB - Math.sqrt(delta)) / (2 * heSoA);
+        buocGiai.push(`Vì Δ > 0, phương trình có 2 nghiệm phân biệt:`);
+        buocGiai.push(`x₁ = (-b + √Δ)/2a = (-${heSoB} + √${delta})/(2.${heSoA}) = ${nghiem1}`);
+        buocGiai.push(`x₂ = (-b - √Δ)/2a = (-${heSoB} - √${delta})/(2.${heSoA}) = ${nghiem2}`);
+        setKetQua({
+          coNghiem: true,
+          nghiem1,
+          nghiem2,
+          delta,
+          buocGiai
+        });
+      }
+      
+      setDangTinh(false);
+    }, 500);
+  };
+
+  const lamLai = () => {
+    setA('');
+    setB('');
+    setC('');
+    setKetQua(null);
+  };
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-8 px-4">
+      <div className="max-w-4xl mx-auto">
+        <div className="text-center mb-8">
+          <h1 className="text-4xl font-bold text-gray-800 mb-2">Giải Phương Trình Bậc 2</h1>
+          <p className="text-gray-600">Nhập các hệ số để tìm nghiệm của phương trình ax² + bx + c = 0</p>
+        </div>
+
+        <div className="bg-white rounded-2xl shadow-xl p-8 mb-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Hệ số a</label>
+              <input
+                type="number"
+                value={a}
+                onChange={(e) => setA(e.target.value)}
+                className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                placeholder="Nhập a"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Hệ số b</label>
+              <input
+                type="number"
+                value={b}
+                onChange={(e) => setB(e.target.value)}
+                className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                placeholder="Nhập b"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Hệ số c</label>
+              <input
+                type="number"
+                value={c}
+                onChange={(e) => setC(e.target.value)}
+                className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                placeholder="Nhập c"
+              />
+            </div>
+          </div>
+
+          <div className="flex justify-center space-x-4">
+            <button
+              onClick={giaiPhuongTrinh}
+              disabled={dangTinh}
+              className="bg-indigo-600 text-white px-6 py-2 rounded-md hover:bg-indigo-700 disabled:opacity-50"
+            >
+              {dangTinh ? 'Đang tính...' : 'Giải'}
+            </button>
+            <button
+              onClick={lamLai}
+              disabled={dangTinh}
+              className="bg-gray-300 text-gray-700 px-6 py-2 rounded-md hover:bg-gray-400 disabled:opacity-50"
+            >
+              Làm lại
+            </button>
+          </div>
+        </div>
+
+        {ketQua && (
+          <div className="bg-white rounded-2xl shadow-xl p-8">
+            <h2 className="text-2xl font-semibold text-gray-800 mb-4">Kết quả</h2>
+            <div className="space-y-2">
+              {ketQua.buocGiai.map((buoc, index) => (
+                <p key={index} className="text-gray-700">
+                  {buoc}
+                </p>
+              ))}
+            </div>
+            <div className="mt-6">
+              {ketQua.coNghiem && ketQua.voSoNghiem && (
+                <p className="text-green-600 font-semibold">Phương trình có vô số nghiệm.</p>
+              )}
+              {ketQua.coNghiem && ketQua.nghiemKep !== undefined && !ketQua.voSoNghiem && (
+                <p className="text-green-600 font-semibold">Nghiệm: x = {ketQua.nghiemKep.toFixed(4)}</p>
+              )}
+              {ketQua.coNghiem && ketQua.nghiem1 !== undefined && ketQua.nghiem2 !== undefined && (
+                <>
+                  <p className="text-green-600 font-semibold">Nghiệm x₁ = {ketQua.nghiem1.toFixed(4)}</p>
+                  <p className="text-green-600 font-semibold">Nghiệm x₂ = {ketQua.nghiem2.toFixed(4)}</p>
+                </>
+              )}
+              {!ketQua.coNghiem && ketQua.voNghiem && (
+                <p className="text-red-600 font-semibold">Phương trình vô nghiệm.</p>
+              )}
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
