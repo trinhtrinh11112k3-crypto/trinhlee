@@ -1,211 +1,165 @@
-import { useState } from 'react';
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Giải Phương Trình Bậc 2</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-8 px-4">
+  <div class="max-w-4xl mx-auto">
+    <div class="text-center mb-8">
+      <h1 class="text-4xl font-bold text-gray-800 mb-2">Giải Phương Trình Bậc 2</h1>
+      <p class="text-gray-600">Nhập các hệ số để tìm nghiệm của phương trình ax² + bx + c = 0</p>
+    </div>
 
-interface KetQua {
-  coNghiem: boolean;
-  nghiemKep?: number;
-  nghiem1?: number;
-  nghiem2?: number;
-  voNghiem?: boolean;
-  voSoNghiem?: boolean;
-  delta?: number;
-  buocGiai: string[];
-}
+    <div class="bg-white rounded-2xl shadow-xl p-8 mb-8">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+        <div>
+          <label for="heSoA" class="block text-sm font-medium text-gray-700 mb-2">Hệ số a</label>
+          <input
+            type="number"
+            id="heSoA"
+            step="any"
+            placeholder="Nhập a"
+            class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          />
+        </div>
+        <div>
+          <label for="heSoB" class="block text-sm font-medium text-gray-700 mb-2">Hệ số b</label>
+          <input
+            type="number"
+            id="heSoB"
+            step="any"
+            placeholder="Nhập b"
+            class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          />
+        </div>
+        <div>
+          <label for="heSoC" class="block text-sm font-medium text-gray-700 mb-2">Hệ số c</label>
+          <input
+            type="number"
+            id="heSoC"
+            step="any"
+            placeholder="Nhập c"
+            class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          />
+        </div>
+      </div>
 
-export default function GiaiPhuongTrinhBacHai() {
-  const [a, setA] = useState<string>('');
-  const [b, setB] = useState<string>('');
-  const [c, setC] = useState<string>('');
-  const [ketQua, setKetQua] = useState<KetQua | null>(null);
-  const [dangTinh, setDangTinh] = useState<boolean>(false);
+      <div class="flex justify-center space-x-4">
+        <button
+          id="giaiBtn"
+          onclick="giaiPhuongTrinh()"
+          class="bg-indigo-600 text-white px-6 py-2 rounded-md hover:bg-indigo-700 disabled:opacity-50"
+        >
+          Giải
+        </button>
+        <button
+          id="lamLaiBtn"
+          onclick="lamLai()"
+          class="bg-gray-300 text-gray-700 px-6 py-2 rounded-md hover:bg-gray-400 disabled:opacity-50"
+        >
+          Làm lại
+        </button>
+      </div>
+    </div>
 
-  const giaiPhuongTrinh = () => {
-    setDangTinh(true);
-    
-    // Giả lập thời gian tính toán
-    setTimeout(() => {
-      const heSoA = parseFloat(a);
-      const heSoB = parseFloat(b);
-      const heSoC = parseFloat(c);
+    <div id="ketQua" class="bg-white rounded-2xl shadow-xl p-8 hidden">
+      <h2 class="text-2xl font-semibold text-gray-800 mb-4">Kết quả</h2>
+      <div id="buocGiai" class="space-y-2 text-gray-700"></div>
+      <div id="nghiem" class="mt-6 text-green-600 font-semibold"></div>
+    </div>
+  </div>
 
-      if (isNaN(heSoA) || isNaN(heSoB) || isNaN(heSoC)) {
+  <script>
+    function giaiPhuongTrinh() {
+      const aInput = document.getElementById('heSoA');
+      const bInput = document.getElementById('heSoB');
+      const cInput = document.getElementById('heSoC');
+      const ketQuaDiv = document.getElementById('ketQua');
+      const buocGiaiDiv = document.getElementById('buocGiai');
+      const nghiemDiv = document.getElementById('nghiem');
+
+      const a = parseFloat(aInput.value);
+      const b = parseFloat(bInput.value);
+      const c = parseFloat(cInput.value);
+
+      buocGiaiDiv.innerHTML = '';
+      nghiemDiv.innerHTML = '';
+
+      if (isNaN(a) || isNaN(b) || isNaN(c)) {
         alert('Vui lòng nhập đầy đủ các hệ số hợp lệ!');
-        setDangTinh(false);
+        ketQuaDiv.classList.add('hidden');
         return;
       }
 
-      const buocGiai: string[] = [];
-      buocGiai.push(`Phương trình: ${heSoA}x² + ${heSoB}x + ${heSoC} = 0`);
+      const buocGiai = [];
+      buocGiai.push(`Phương trình: ${a}x² + ${b}x + ${c} = 0`);
 
-      // Trường hợp a = 0
-      if (heSoA === 0) {
-        buocGiai.push('Vì a = 0, đây là phương trình bậc nhất: ' + heSoB + 'x + ' + heSoC + ' = 0');
-        
-        if (heSoB === 0) {
-          if (heSoC === 0) {
+      if (a === 0) {
+        buocGiai.push(`Vì a = 0, đây là phương trình bậc nhất: ${b}x + ${c} = 0`);
+
+        if (b === 0) {
+          if (c === 0) {
             buocGiai.push('Phương trình có vô số nghiệm');
-            setKetQua({
-              coNghiem: true,
-              voSoNghiem: true,
-              buocGiai
-            });
+            hienThiKetQua(buocGiai, 'Phương trình có vô số nghiệm.', 'green');
           } else {
             buocGiai.push('Phương trình vô nghiệm');
-            setKetQua({
-              coNghiem: false,
-              voNghiem: true,
-              buocGiai
-            });
+            hienThiKetQua(buocGiai, 'Phương trình vô nghiệm.', 'red');
           }
         } else {
-          const nghiem = -heSoC / heSoB;
-          buocGiai.push(`Nghiệm: x = -c/b = -${heSoC}/${heSoB} = ${nghiem}`);
-          setKetQua({
-            coNghiem: true,
-            nghiemKep: nghiem,
-            buocGiai
-          });
+          const nghiem = -c / b;
+          buocGiai.push(`Nghiệm: x = -c/b = -${c}/${b} = ${nghiem.toFixed(4)}`);
+          hienThiKetQua(buocGiai, `Nghiệm: x = ${nghiem.toFixed(4)}`, 'green');
         }
-        setDangTinh(false);
         return;
       }
 
-      // Tính delta
-      const delta = heSoB * heSoB - 4 * heSoA * heSoC;
-      buocGiai.push(`Tính delta: Δ = b² - 4ac = ${heSoB}² - 4.${heSoA}.${heSoC} = ${delta}`);
+      const delta = b * b - 4 * a * c;
+      buocGiai.push(`Tính delta: Δ = b² - 4ac = ${b}² - 4*${a}*${c} = ${delta}`);
 
       if (delta < 0) {
         buocGiai.push('Vì Δ < 0, phương trình vô nghiệm');
-        setKetQua({
-          coNghiem: false,
-          voNghiem: true,
-          delta,
-          buocGiai
-        });
+        hienThiKetQua(buocGiai, 'Phương trình vô nghiệm.', 'red');
       } else if (delta === 0) {
-        const nghiem = -heSoB / (2 * heSoA);
-        buocGiai.push(`Vì Δ = 0, phương trình có nghiệm kép: x = -b/2a = -${heSoB}/(2.${heSoA}) = ${nghiem}`);
-        setKetQua({
-          coNghiem: true,
-          nghiemKep: nghiem,
-          delta,
-          buocGiai
-        });
+        const nghiem = -b / (2 * a);
+        buocGiai.push(`Vì Δ = 0, phương trình có nghiệm kép: x = -b/2a = -${b}/(2*${a}) = ${nghiem.toFixed(4)}`);
+        hienThiKetQua(buocGiai, `Nghiệm kép: x = ${nghiem.toFixed(4)}`, 'green');
       } else {
-        const nghiem1 = (-heSoB + Math.sqrt(delta)) / (2 * heSoA);
-        const nghiem2 = (-heSoB - Math.sqrt(delta)) / (2 * heSoA);
-        buocGiai.push(`Vì Δ > 0, phương trình có 2 nghiệm phân biệt:`);
-        buocGiai.push(`x₁ = (-b + √Δ)/2a = (-${heSoB} + √${delta})/(2.${heSoA}) = ${nghiem1}`);
-        buocGiai.push(`x₂ = (-b - √Δ)/2a = (-${heSoB} - √${delta})/(2.${heSoA}) = ${nghiem2}`);
-        setKetQua({
-          coNghiem: true,
-          nghiem1,
-          nghiem2,
-          delta,
-          buocGiai
-        });
+        const nghiem1 = (-b + Math.sqrt(delta)) / (2 * a);
+        const nghiem2 = (-b - Math.sqrt(delta)) / (2 * a);
+        buocGiai.push('Vì Δ > 0, phương trình có 2 nghiệm phân biệt:');
+        buocGiai.push(`x₁ = (-b + √Δ)/2a = (-${b} + √${delta})/(2*${a}) = ${nghiem1.toFixed(4)}`);
+        buocGiai.push(`x₂ = (-b - √Δ)/2a = (-${b} - √${delta})/(2*${a}) = ${nghiem2.toFixed(4)}`);
+        hienThiKetQua(buocGiai, `Nghiệm x₁ = ${nghiem1.toFixed(4)}, x₂ = ${nghiem2.toFixed(4)}`, 'green');
       }
-      
-      setDangTinh(false);
-    }, 500);
-  };
+    }
 
-  const lamLai = () => {
-    setA('');
-    setB('');
-    setC('');
-    setKetQua(null);
-  };
+    function hienThiKetQua(buocGiai, nghiemText, color) {
+      const ketQuaDiv = document.getElementById('ketQua');
+      const buocGiaiDiv = document.getElementById('buocGiai');
+      const nghiemDiv = document.getElementById('nghiem');
 
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-8 px-4">
-      <div className="max-w-4xl mx-auto">
-        <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-gray-800 mb-2">Giải Phương Trình Bậc 2</h1>
-          <p className="text-gray-600">Nhập các hệ số để tìm nghiệm của phương trình ax² + bx + c = 0</p>
-        </div>
+      buocGiaiDiv.innerHTML = '';
+      buocGiai.forEach(buoc => {
+        const p = document.createElement('p');
+        p.textContent = buoc;
+        buocGiaiDiv.appendChild(p);
+      });
 
-        <div className="bg-white rounded-2xl shadow-xl p-8 mb-8">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Hệ số a</label>
-              <input
-                type="number"
-                value={a}
-                onChange={(e) => setA(e.target.value)}
-                className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                placeholder="Nhập a"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Hệ số b</label>
-              <input
-                type="number"
-                value={b}
-                onChange={(e) => setB(e.target.value)}
-                className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                placeholder="Nhập b"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Hệ số c</label>
-              <input
-                type="number"
-                value={c}
-                onChange={(e) => setC(e.target.value)}
-                className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                placeholder="Nhập c"
-              />
-            </div>
-          </div>
+      nghiemDiv.textContent = nghiemText;
+      nghiemDiv.style.color = color;
 
-          <div className="flex justify-center space-x-4">
-            <button
-              onClick={giaiPhuongTrinh}
-              disabled={dangTinh}
-              className="bg-indigo-600 text-white px-6 py-2 rounded-md hover:bg-indigo-700 disabled:opacity-50"
-            >
-              {dangTinh ? 'Đang tính...' : 'Giải'}
-            </button>
-            <button
-              onClick={lamLai}
-              disabled={dangTinh}
-              className="bg-gray-300 text-gray-700 px-6 py-2 rounded-md hover:bg-gray-400 disabled:opacity-50"
-            >
-              Làm lại
-            </button>
-          </div>
-        </div>
+      ketQuaDiv.classList.remove('hidden');
+    }
 
-        {ketQua && (
-          <div className="bg-white rounded-2xl shadow-xl p-8">
-            <h2 className="text-2xl font-semibold text-gray-800 mb-4">Kết quả</h2>
-            <div className="space-y-2">
-              {ketQua.buocGiai.map((buoc, index) => (
-                <p key={index} className="text-gray-700">
-                  {buoc}
-                </p>
-              ))}
-            </div>
-            <div className="mt-6">
-              {ketQua.coNghiem && ketQua.voSoNghiem && (
-                <p className="text-green-600 font-semibold">Phương trình có vô số nghiệm.</p>
-              )}
-              {ketQua.coNghiem && ketQua.nghiemKep !== undefined && !ketQua.voSoNghiem && (
-                <p className="text-green-600 font-semibold">Nghiệm: x = {ketQua.nghiemKep.toFixed(4)}</p>
-              )}
-              {ketQua.coNghiem && ketQua.nghiem1 !== undefined && ketQua.nghiem2 !== undefined && (
-                <>
-                  <p className="text-green-600 font-semibold">Nghiệm x₁ = {ketQua.nghiem1.toFixed(4)}</p>
-                  <p className="text-green-600 font-semibold">Nghiệm x₂ = {ketQua.nghiem2.toFixed(4)}</p>
-                </>
-              )}
-              {!ketQua.coNghiem && ketQua.voNghiem && (
-                <p className="text-red-600 font-semibold">Phương trình vô nghiệm.</p>
-              )}
-            </div>
-          </div>
-        )}
-      </div>
-    </div>
-  );
-}
+    function lamLai() {
+      document.getElementById('heSoA').value = '';
+      document.getElementById('heSoB').value = '';
+      document.getElementById('heSoC').value = '';
+      document.getElementById('ketQua').classList.add('hidden');
+    }
+  </script>
+</body>
+</html>
